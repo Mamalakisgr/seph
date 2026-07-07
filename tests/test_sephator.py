@@ -9,13 +9,6 @@ logger = logging.getLogger(__name__)
 from selenium.webdriver.common.keys import Keys
 import time as time
 
-# def test_homepage_(driver):
-#     home = Homepage(driver)
-#     logger.info("Navigating to the homepage")
-#     assert driver.current_url == "https://varsome.com/"
-#     search_box_placeholder = home.get_attribute(home.SEARCH_BOX, "placeholder")
-#     assert search_box_placeholder == "Search for variants, CNVs, genes, transcripts, publications, diseases..."
-
 
 def test_homepage_loads(driver, base_url):
     home = Homepage(driver)
@@ -89,36 +82,29 @@ def test_homepage_loads(driver, base_url):
     ]
     searchpage.verify_sections_are_displayed(*expected_sections)
 
-    logger.info("Checking Germline Classification card is visible in the top panel")
-    germline_card = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.XPATH, "//div[@data-testid='variantDetails' and .//span[normalize-space()='Germline Classification']]"))
-    )
-    assert germline_card.is_displayed(), "Germline Classification card is not visible"
-
     # Step 5 - Expand the Germline Classification Section
     logger.info("Expanding the Germline Classification section")
     searchpage.click(searchpage.ACMG_CARD)
 
     logger.info("Scrolling down to the Germline Variant Classification section")
-    germline_classification_section = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//*[contains(text(),'Germline Variant Classification')]")
-        )
-    )
+
     searchpage.scroll_into_view(searchpage.WARNING_BUTTON)
     searchpage.click(searchpage.WARNING_BUTTON)
-    # germline_classification_section.scroll_into_view()
+
+    germline_classification_section = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//*a[contains(text(),'Germline Variant Classification')]")
+        )
+    )
+
+    germline_classification_section.scroll_into_view()
     # assert germline_classification_section.is_displayed(), "Germline Variant Classification section is not visible after expanding"
     
-    # logger.info("Verifying classification verdict is displayed")
-    # verdict = germline_classification_section.find_element(By.CSS_SELECTOR, "span.saph-pill")
-    # assert verdict.is_displayed(), "Classification verdict pill is not visible"
-    # logger.info(f"Classification verdict: {verdict.text}")
-
-    # logger.info("Verifying ACMG scores are displayed")
-    # acmg_scores_section = germline_classification_section.find_element(By.CSS_SELECTOR, "[data-testid='ACMG_scores']")
-    # acmg_scores = acmg_scores_section.find_element(By.CSS_SELECTOR, "[data-testid='ACMG_scores']")
-    # assert acmg_scores.is_displayed(), "ACMG scores are not visible"
-
-    # logger.info("Verifying automated criteria table is displayed")
-    # assert germline_classification_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"
+    logger.info("Verifying classification verdict is displayed")
+    verdict = germline_classification_section.find_element(By.CSS_SELECTOR, "span.saph-pill")
+    assert verdict.is_displayed(), "Classification verdict pill is not visible"
+    logger.info(f"Classification verdict: {verdict.text}")
+    assert verdict.text == "Pathogenic", f"Unexpected classification verdict: {verdict.text}"
+    
+    logger.info("Verifying automated criteria table is displayed")
+    assert germline_classification_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"

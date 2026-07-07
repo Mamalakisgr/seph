@@ -3,7 +3,7 @@ from pages.init_page import InitPage
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-    
+from selenium.common.exceptions import TimeoutException
 logger = logging.getLogger(__name__)
 
 class SearchPage(InitPage):
@@ -13,23 +13,35 @@ class SearchPage(InitPage):
     SEARCH_MODAL = "[data-testid='modal']"
     ACMG_CARD = "[data-testid='acmg']"
     WARNING_BUTTON = "button[contains(text(),'I understand')]"
+    VARIANT_INFO = (By.ID, "variant-info")
     
-    def verify_sections_are_displayed(self, *sections):
+
+    def verify_sections_are_displayed(self, *sections, timeout: int = 10):
         for section in sections:
             logger.info(f"Checking section: {section}")
 
-            assert self.driver.find_elements(
+            locator = (
                 By.XPATH,
-                f"//span[contains(text(), '{section}')]",
-            ), f"Section '{section}' not found on results page"
+                f"//span[contains(text(), '{section}')]"
+            )
+
+            try:
+                WebDriverWait(self.driver, timeout).until(
+                    EC.visibility_of_element_located(locator)
+                )
+
+            except TimeoutException:
+                assert False, f"Section '{section}' not found or not visible after {timeout}s"
 
     def wait_for_results_loading(self, timeout: int = 20):
         """
-        Wait until the loading indicator disappears.
+        Wait until the variant information section is visible.
         """
-
-        logger.info("Waiting for results page to finish loading")
-
+    
+        logger.info("Waiting for variant information to load")
+    
         WebDriverWait(self.driver, timeout).until(
-            EC.invisibility_of_element_located((By.TAG_NAME, "circle"))
+            EC.visibility_of_element_located(self.VARIANT_INFO)
         )
+    
+        logger.info("Variant information loaded successfully")
