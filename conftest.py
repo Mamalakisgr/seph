@@ -8,8 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 load_dotenv()
-DEBUG = True
-
+DEBUG = False
 
 @pytest.fixture(scope="session")
 def base_url():
@@ -24,7 +23,7 @@ def driver():
     options.add_argument("--start-maximized")
     options.add_argument("--disable-notifications")
 
-    # options.add_argument("--headless=new")
+    options.add_argument("--headless=new")
 
     if DEBUG:
         options.add_experimental_option("detach", True)
