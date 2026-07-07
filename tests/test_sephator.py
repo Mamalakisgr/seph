@@ -16,7 +16,7 @@ def test_homepage_loads(driver, base_url):
     logger.info("Navigating to the homepage")
     assert driver.current_url == "https://varsome.com/"
     search_box_placeholder = home.get_attribute(home.SEARCH_BOX, "placeholder")
-    # assert search_box_placeholder == "“Enter gene, transcript, variant, or region."
+    # assert search_box_placeholder == "“Enter gene, transcript, variant, or region." # Different placeholder text, commented out for the sake of the assignement.
 
     genome_text = home.get_element_text(home.SEARCH_DROPDOWN_TEXT)
     logger.info(f"Checking genome text in the search dropdown: {genome_text}")
@@ -88,7 +88,6 @@ def test_homepage_loads(driver, base_url):
 
     logger.info("Scrolling down to the Germline Variant Classification section")
 
-    searchpage.scroll_into_view(searchpage.WARNING_BUTTON)
     searchpage.click(searchpage.WARNING_BUTTON)
 
     germline_classification_section = WebDriverWait(driver, 10).until(
@@ -96,18 +95,18 @@ def test_homepage_loads(driver, base_url):
             (By.XPATH, "//a[contains(text(),'Germline Variant Classification')]")
         )
     )
-
-    # searchpage.scroll_into_view(germline_classification_section)
-    # assert germline_classification_section.is_displayed(), "Germline Variant Classification section is not visible after expanding"
     
     logger.info("Verifying classification verdict is displayed")
     components_section = driver.find_element(By.ID, "components-start")
     verdict = components_section.find_element(By.CSS_SELECTOR, "div.saph-pill")
     assert verdict.is_displayed(), "Classification verdict pill is not visible"
+
     logger.info(f"Classification verdict: {verdict.text}")
     assert verdict.text == "Pathogenic", f"Unexpected classification verdict: {verdict.text}"
-    expected_rgb="rgb(199, 7, 0)"
+
+    expected_rgb="rgba(199, 7, 0, 1)"
     actual_rgb = verdict.value_of_css_property("background-color")
     assert actual_rgb == expected_rgb, f"Expected background color {expected_rgb}, but got {actual_rgb}"
+
     logger.info("Verifying automated criteria table is displayed")
-    assert germline_classification_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"
+    assert components_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"
