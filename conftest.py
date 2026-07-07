@@ -68,5 +68,7 @@ def open_application(driver, base_url):
         ).click()
     except TimeoutException:
         pass
+
+
     finally:
         driver.switch_to.default_content()

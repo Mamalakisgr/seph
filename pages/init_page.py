@@ -3,6 +3,7 @@ import logging
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from urllib.parse import unquote
 
 logger = logging.getLogger(__name__)
@@ -73,7 +74,22 @@ class InitPage:
 
         if self.driver.find_elements(*self.PROCEED_BUTTON):
             logger.info("Security page detected. Clicking proceed button")
+            try:
+                WebDriverWait(self.driver, 10).until(
+                    EC.frame_to_be_available_and_switch_to_it(
+                        (By.CSS_SELECTOR, "iframe[data-test-id='interactive-frame']")
+                    )
+                )
+                WebDriverWait(self.driver, 10).until(
+                    EC.element_to_be_clickable((By.ID, "interactive-close-button"))
+                ).click()
 
+            except TimeoutException:
+                pass
+
+            finally:
+                self.driver.switch_to.default_content()
+                    
             self.click(self.PROCEED_BUTTON)
 
             WebDriverWait(self.driver, timeout).until(
