@@ -42,7 +42,6 @@ def driver():
 def open_application(driver, base_url):
     driver.get(base_url)
 
-    # Wait for page to be interactive before doing anything
     WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.ID, "search"))
     )
@@ -58,7 +57,7 @@ def open_application(driver, base_url):
     except TimeoutException:
         pass
 
-    # Dismiss promotional iframe modal if present
+    # Dismiss version update modal if present
     try:
         WebDriverWait(driver, 5).until(
             EC.frame_to_be_available_and_switch_to_it(

@@ -21,7 +21,7 @@ class Homepage(InitPage):
     ZYGOSITY_INPUT = (By.XPATH, "//*[@id='germline-modal-zygosity']//input[contains(@id,'react-select')]")
     FAMILY_SEGREGATION_INPUT = (By.XPATH, "//*[@id='germline-modal-onset-age'][2]//input[contains(@id,'react-select')]")
 
-    def fill_sample_information(self, phenotype: str, sex: str, age: str, ethnicity: str, phenotype_option: str = None):
+    def fill_sample_information(self, phenotype: str = None, sex: str = None, age: str = None, ethnicity: str = None, phenotype_option: str = None):
         germline_class = self.get_attribute(self.GERMLINE_BUTTON, "class")
         assert "tw-bg-primary" in germline_class, "Germline is not selected by default"
 

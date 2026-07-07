@@ -13,11 +13,13 @@ import time as time
 def test_homepage_loads(driver, base_url):
     home = Homepage(driver)
 
+    # Step 1 – Launch VarSome Website
     logger.info("Navigating to the homepage")
-    assert driver.current_url == "https://varsome.com/"
+    assert driver.current_url == base_url, f"Expected URL to be {base_url}, but got {driver.current_url}"
     search_box_placeholder = home.get_attribute(home.SEARCH_BOX, "placeholder")
     # assert search_box_placeholder == "“Enter gene, transcript, variant, or region." # Different placeholder text, commented out for the sake of the assignement.
 
+    # Step 2 – Initiate Variant Search
     genome_text = home.get_element_text(home.SEARCH_DROPDOWN_TEXT)
     logger.info(f"Checking genome text in the search dropdown: {genome_text}")
     assert genome_text == "hg38", f"Expected 'Genome: hg38' in the search dropdown, but got '{genome_text}'"
@@ -31,9 +33,9 @@ def test_homepage_loads(driver, base_url):
     expected_text = home.get_element_text(home.SEARCH_MODAL_TEXT)
     assert expected_text == "Optional Sample Information", f"Expected 'Optional Sample Information' in the search modal, but got '{expected_text}'"
 
-    # Complete the Optional Sample Information Modal
-    germline_button = driver.find_element(By.XPATH, "//div[contains(text(), 'Germline')]")
-    assert "tw-bg-primary" in germline_button.get_attribute("class"), "Germline button is not selected by default"
+    # Step 3 – Complete the Optional Sample Information Modal
+    germline_button_class = home.get_attribute(home.GERMLINE_BUTTON, "class")
+    assert "tw-bg-primary" in germline_button_class, "Germline button is not selected by default"
     
     home.fill_sample_information(
         phenotype="Cancer",
@@ -52,13 +54,8 @@ def test_homepage_loads(driver, base_url):
     )
     
 
-    # Proceed to the search results page
     logger.info("Clicking the 'Search' button to proceed to the search results page")
-    button = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//*[@data-testid='modal']//button[.//div[contains(text(), 'Search')]]"))
-    )
-    time.sleep(0.5)
-    button.click()
+    home.click(home.MODAL_SEARCH_BUTTON)
 
     # Security page handling and final assertion for search results page
     logger.info("Waiting for the search results page to load and checking the URL")
@@ -68,7 +65,7 @@ def test_homepage_loads(driver, base_url):
     expected_url_text="BRAF:V600E"
     )
 
-    # Search Page Assertions
+    # Step 4 – Verify the Results Page Load
     logger.info("Waiting for the results page to fully load")
     searchpage.wait_for_results_loading()
 
@@ -90,23 +87,6 @@ def test_homepage_loads(driver, base_url):
 
     searchpage.click(searchpage.WARNING_BUTTON)
 
-    germline_classification_section = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//a[contains(text(),'Germline Variant Classification')]")
-        )
-    )
-    
-    logger.info("Verifying classification verdict is displayed")
-    components_section = driver.find_element(By.ID, "components-start")
-    verdict = components_section.find_element(By.CSS_SELECTOR, "div.saph-pill")
-    assert verdict.is_displayed(), "Classification verdict pill is not visible"
-
-    logger.info(f"Classification verdict: {verdict.text}")
-    assert verdict.text == "Pathogenic", f"Unexpected classification verdict: {verdict.text}"
-
     expected_rgb="rgba(199, 7, 0, 1)"
-    actual_rgb = verdict.value_of_css_property("background-color")
-    assert actual_rgb == expected_rgb, f"Expected background color {expected_rgb}, but got {actual_rgb}"
-
-    logger.info("Verifying automated criteria table is displayed")
-    assert components_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"
+    searchpage.verify_classification_verdict(expected_text="Pathogenic", expected_rgb="rgb(199, 7, 0)")
+    searchpage.verify_automated_criteria_displayed()
