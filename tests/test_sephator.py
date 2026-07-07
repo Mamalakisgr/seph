@@ -1,16 +1,11 @@
 import logging
-from selenium.webdriver.common.by import By
 from pages.homepage import Homepage
 from pages.searchpage import SearchPage
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger(__name__)
-from selenium.webdriver.common.keys import Keys
-import time as time
 
 
-def test_homepage_loads(driver, base_url):
+def test_germline_variant_classification(driver, base_url):
     home = Homepage(driver)
 
     # Step 1 – Launch VarSome Website
