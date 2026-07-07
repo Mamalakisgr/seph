@@ -47,17 +47,17 @@ class Homepage(BasePage):
         germline_class = self.get_attribute(self.GERMLINE_BUTTON, "class")
         assert "tw-bg-primary" in germline_class, "Germline is not selected by default"
 
-        logger.info("  Selecting phenotype")
+        logger.info("Selecting phenotype")
         self.select_react_dropdown(self.PHENOTYPE_INPUT, phenotype, send_keys=True)
         self.dismiss_react_dropdown()
 
-        logger.info("  Selecting sex")
+        logger.info("Selecting sex")
         self.select_react_dropdown(self.SEX_INPUT, sex)
 
-        logger.info("  Entering age of onset")
+        logger.info("Entering age of onset")
         self.type(self.AGE_ONSET_INPUT, age)
 
-        logger.info("  Selecting ethnicity")
+        logger.info("Selecting ethnicity")
         self.select_react_dropdown(self.ETHNICITY_INPUT, ethnicity)
         self.dismiss_react_dropdown()
 
