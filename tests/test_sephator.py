@@ -93,18 +93,21 @@ def test_homepage_loads(driver, base_url):
 
     germline_classification_section = WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located(
-            (By.XPATH, "//*a[contains(text(),'Germline Variant Classification')]")
+            (By.XPATH, "//a[contains(text(),'Germline Variant Classification')]")
         )
     )
 
-    germline_classification_section.scroll_into_view()
+    # searchpage.scroll_into_view(germline_classification_section)
     # assert germline_classification_section.is_displayed(), "Germline Variant Classification section is not visible after expanding"
     
     logger.info("Verifying classification verdict is displayed")
-    verdict = germline_classification_section.find_element(By.CSS_SELECTOR, "span.saph-pill")
+    components_section = driver.find_element(By.ID, "components-start")
+    verdict = components_section.find_element(By.CSS_SELECTOR, "div.saph-pill")
     assert verdict.is_displayed(), "Classification verdict pill is not visible"
     logger.info(f"Classification verdict: {verdict.text}")
     assert verdict.text == "Pathogenic", f"Unexpected classification verdict: {verdict.text}"
-    
+    expected_rgb="rgb(199, 7, 0)"
+    actual_rgb = verdict.value_of_css_property("background-color")
+    assert actual_rgb == expected_rgb, f"Expected background color {expected_rgb}, but got {actual_rgb}"
     logger.info("Verifying automated criteria table is displayed")
     assert germline_classification_section.find_element(By.XPATH, ".//h5[contains(text(),'Automated criteria')]").is_displayed(), "Automated criteria table is not visible"

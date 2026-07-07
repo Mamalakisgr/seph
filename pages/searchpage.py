@@ -10,9 +10,9 @@ class SearchPage(InitPage):
     SEARCH_BOX_ID = "search"
     SEARCH_BUTTON_ID = "varsome-search-btn"
     SEARCH_DROPDOWN_CLASS = "select-selected"
-    SEARCH_MODAL = "[data-testid='modal']"
-    ACMG_CARD = "[data-testid='acmg']"
-    WARNING_BUTTON = "button[contains(text(),'I understand')]"
+    SEARCH_MODAL = (By.CSS_SELECTOR, "[data-testid='modal']")
+    ACMG_CARD = (By.CSS_SELECTOR, "[data-testid='acmg']")
+    WARNING_BUTTON = (By.XPATH, "//button[contains(text(),'I understand')]")
     VARIANT_INFO = (By.ID, "variant-info")
     
 
@@ -22,7 +22,7 @@ class SearchPage(InitPage):
 
             locator = (
                 By.XPATH,
-                f"//span[contains(text(), '{section}')]"
+                f"//span[contains(normalize-space(), '{section}')]"
             )
 
             try:
@@ -31,17 +31,20 @@ class SearchPage(InitPage):
                 )
 
             except TimeoutException:
-                assert False, f"Section '{section}' not found or not visible after {timeout}s"
+                raise AssertionError(
+                    f"Section '{section}' was not found or not visible "
+                    f"after {timeout} seconds"
+                )
 
     def wait_for_results_loading(self, timeout: int = 20):
         """
         Wait until the variant information section is visible.
         """
-    
+
         logger.info("Waiting for variant information to load")
-    
+
         WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(self.VARIANT_INFO)
         )
-    
+
         logger.info("Variant information loaded successfully")
